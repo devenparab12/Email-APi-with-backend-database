@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EMAIL</title>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <h1>Email</h1>
+    <form action="/send-email" method="POST">
+      <label for="to">To:</label>
+      <input type="email" id="to" name="to">
+      <label for="subject">Subject:</label>
+      <input type="text" id="subject" name="subject">
+      <label for="text">Message:</label>
+      <textarea id="text" name="text"></textarea>
+      <button type="submit">Send Email</button>
+    </form>  
+    <form>
+      <input id="deleteemailid" name="id" type="number">
+      <button type="button" onclick="deleteEmail()">Delete Email</button>
+    </form>
+    <form>
+      <input id="printemailid" name="id" type="number">
+      <button type="button" onclick=printEmail()>Print Email Details</button>
+    </form>
+      <title>Previously sent Emails</title>
+      <style>
+        /* General Form Styles */
+        form {
+          margin-bottom: 20px;
+        }
+    
+        label {
+          display: block;
+          margin-bottom: 5px;
+        }
+    
+        input,
+        textarea {
+          width: 100%;
+          padding: 8px;
+          margin-bottom: 10px;
+          box-sizing: border-box;
+        }
+    
+        button {
+          background-color: #4caf50;
+          color: white;
+          padding: 10px;
+          border: none;
+          cursor: pointer;
+        }
+    
+        /* Email Form Styles */
+        .email-form {
+          max-width: 400px;
+        }
+    
+        /* Delete and Print Email Forms Styles */
+        .delete-email-form,
+        .print-email-form {
+          max-width: 200px;
+        }
+    
+        /* Table Styles */
+        table {
+          border-collapse: collapse;
+          width: 100%;
+        }
+    
+        th, td {
+          border: 1px solid #d20f0f;
+          text-align: left;
+          padding: 8px;
+        }
+    
+        th {
+          background-color: #bfce15;
+        }
+    
+        tr:nth-child(even) {
+          background-color: #d41086;
+        }
+    
+        tr:nth-child(odd) {
+          background-color: #0ed21f;
+        }
+      </style>
+</head>
+<body>
+
+<table id="emails">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Email</th>
+      <th>Subject</th>
+      <th>Body</th>
+    </tr>
+  </thead>
+</table>
+<script>
+  //Function to delete mail
+  function deleteEmail(){
+    var emailId = document.getElementById('deleteemailid').value;
+    fetch(`/delete-email/${emailId}`)
+      .then(response => {
+        console.log(response);
+        getEmails();
+      })
+      .catch(error => console.error('Error:', error));
+  }
+  // Function to make a GET request for printing email details
+  function printEmail() {
+    var emailId = document.getElementById('printemailid').value;
+    fetch(`/print-email/${emailId}`)
+      .then(response => {
+        console.log(response);
+        getEmails();
+      })
+      .catch(error => console.error('Error:', error));
+  }
+  // Render HTML
+  // Function to render HTML table
+function renderHtmlTable(data) {
+    let html = `
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Email</th>
+          <th>Subject</th>
+          <th>Body</th>
+        </tr>
+      </thead>
+      <tbody>
+    `;
+
+    // Create table rows
+    for (const row of data) {
+      html += '<tr>';
+      for (const column in row) {
+        html += `<td>${row[column]}</td>`;
+      }
+      html += '</tr>';
+    }
+
+    html += '</tbody>';
+
+    return html;
+  }
+  // Function to make GET request for sent emails
+  function getEmails() {
+    fetch(`/sent-emails`)
+      .then(response => response.text()
+        .then(txt => {
+          const data = JSON.parse(txt);
+          document.getElementById('emails').innerHTML = renderHtmlTable(data);
+        })
+        .catch(error => console.log(error))
+      )
+      .catch(error => console.error('Error:', error));
+  }
+  //
+  getEmails();
+</script>
+</div> 
+  </body>
+</html>
